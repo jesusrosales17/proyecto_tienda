@@ -18,7 +18,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
 
     const [rows] = await pool.query<UserAuthRow[]>(
-      "SELECT id, correo_electronico AS email, nombre, contrasena AS password FROM usuarios WHERE correo_electronico = ? LIMIT 1",
+      "SELECT id, correo_electronico AS email, nombre, contrasena AS password, rol FROM usuarios WHERE correo_electronico = ? LIMIT 1",
       [email]
     );
 
@@ -44,6 +44,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       id: user.id,
       email: user.email,
       nombre: user.nombre,
+      rol: user.rol,
     };
 
     const token = jwt.sign(payload, config.jwtSecret, { expiresIn });
@@ -57,6 +58,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         id: user.id,
         email: user.email,
         nombre: user.nombre,
+        rol: user.rol
       },
     };
 

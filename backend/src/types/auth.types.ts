@@ -1,4 +1,4 @@
-import type { UserBase } from "./user.types.js";
+import type { UserBase, UserRole } from "./user.types.js";
 
 export interface LoginBody {
   email?: string;
@@ -9,6 +9,7 @@ export interface AuthTokenPayload {
   id: number;
   email: string;
   nombre: string;
+  rol: UserRole;
 }
 
 export interface LoginSuccessResponse {

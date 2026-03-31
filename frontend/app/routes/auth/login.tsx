@@ -1,11 +1,11 @@
 import { Login } from "~/features/auth/components/Login";
-import {  type Route } from '../../../.react-router/types/app/routes/+types/home';
+import type { Route } from "./+types/login";
 
 export function meta({}: Route.MetaArgs) {
   return [{title: "Inicia sesión"}
   ] 
 }
 
-export default function login() {
+export default function loginPage() {
   return <Login />
 }

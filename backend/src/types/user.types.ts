@@ -2,6 +2,11 @@ import type { RowDataPacket } from "mysql2";
 
 export type UserRole = "Administrador" | "Vendedor";
 
+export enum UserState {
+  Active = 1,
+  Innactive = 0
+}
+
 export interface UserBase {
   id: number;
   email: string;
@@ -14,5 +19,5 @@ export interface UserAuthRow extends RowDataPacket, UserBase {
 }
 
 export interface UserWithEstadoRow extends RowDataPacket, Pick<UserBase, 'id'> {
-  estado: number;
+  estado: UserState;
 }

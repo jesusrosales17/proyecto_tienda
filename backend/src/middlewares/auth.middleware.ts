@@ -14,6 +14,7 @@ export interface AuthRequest extends Request {
 export const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies.token;
+    console.log(req.cookies);
 
     if (!token) {
       return res.status(401).json({ message: "No autenticado" });

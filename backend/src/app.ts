@@ -1,13 +1,21 @@
 import express from 'express';
+import cors from 'cors';
 import cookieParcer from 'cookie-parser';
 
 import { errorHandler } from './middlewares/errorHandler.js';
+import config from './config/config.js';
 
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
 const app = express();
+
+// cors
+app.use(cors({
+	origin: config.frontendUrl,
+	credentials: true,
+}));
 
 
 // convertir a json

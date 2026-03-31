@@ -6,6 +6,7 @@ import pool from "../config/database.js";
 import config from "../config/config.js";
 import type { LoginBody, AuthTokenPayload, LoginSuccessResponse } from "../types/auth.types.js";
 import type { UserAuthRow } from "../types/user.types.js";
+import type { AuthRequest } from "../middlewares/auth.middleware.js";
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -49,7 +50,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     const token = jwt.sign(payload, config.jwtSecret, { expiresIn });
 
-    res.cookie("token", token, { httpOnly: true, sameSite: "lax", secure: true });
+    res.cookie("token", token, { httpOnly: true, sameSite: "lax", secure: true});
+    
 
     const response: LoginSuccessResponse = {
       message: "Login exitoso",
@@ -66,4 +68,16 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   } catch (error) {
     return next(error);
   }
+};
+
+export const me = (req: AuthRequest, res: Response) => {
+  console.log('hola')
+  if (!req.user) {
+    return res.status(401).json({ message: "No autenticado" });
+  }
+
+  return res.status(200).json({
+    message: "Usuario autenticado",
+    user: req.user,
+  });
 };

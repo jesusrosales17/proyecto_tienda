@@ -1,6 +1,3 @@
-import { useRef } from "react";
-import { Link } from "react-router";
-
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -11,18 +8,10 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useLogin } from "../hooks/useLogin";
 
 export const Login = () => {
-  const emailInput = useRef<HTMLInputElement | null>(null);
-  const passwordInput = useRef<HTMLInputElement | null>(null);
-
-  const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const email = emailInput.current?.value;
-    const password = passwordInput.current?.value;
-
-    console.log({email, password})
-  };
+  const { loading, emailInput, passwordInput, onSubmit } = useLogin();
 
   return (
     <main className="relative grid min-h-[calc(100dvh-4rem)] place-items-center px-4 py-10 sm:px-6">
@@ -66,8 +55,8 @@ export const Login = () => {
               />
             </div>
 
-            <Button type="submit" className="h-10 w-full">
-              Iniciar sesión
+            <Button  type="submit" className="h-10 w-full" disabled={loading}>
+              {loading ? "Iniciando sesión..." : "Iniciar sesión"}
             </Button>
           </form>
         </CardContent>

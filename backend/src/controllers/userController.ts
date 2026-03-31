@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { UserAuthRow,  UserWithEstadoRow } from '../types/user.types.js';
+import { UserState, type UserAuthRow, type UserWithEstadoRow } from '../types/user.types.js';
 import type { ResultSetHeader } from 'mysql2';
 
 import pool from '../config/database.js';
@@ -107,7 +107,7 @@ export const toggleStatus = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    const newStatus = existingUser?.[0]?.estado === 1 ? 0 : 1;
+    const newStatus = existingUser?.[0]?.estado === UserState.Active ? UserState.Innactive : UserState.Active;
     const [result] = await pool.query<ResultSetHeader>("UPDATE usuarios SET estado = ? WHERE id = ?", [newStatus, id]);
 
     return res.status(200).json({

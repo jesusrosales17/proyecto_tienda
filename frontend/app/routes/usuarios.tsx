@@ -1,11 +1,10 @@
 import { PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import type { Route } from "./+types/usuarios";
-import { useState } from "react";
 import { useUsers } from "~/features/users/hooks/useUsers";
-import { UserState } from "~/features/users/types/user.types";
 import { UsersTable } from "~/features/users/components/UsersTable";
+import { useUserForm } from "~/features/users/hooks/useUserForm";
+import { UserFormModal } from "~/features/users/components/UserFormModal";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,7 +15,19 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function UsuariosPage() {
-  const { usersList } = useUsers();
+  const { usersList, createUser, updateUser, toggleUserState } = useUsers();
+  const {
+    open,
+    mode,
+    loading,
+    values,
+    errors,
+    openCreate,
+    openEdit,
+    onOpenChange,
+    setField,
+    submit,
+  } = useUserForm({ createUser, updateUser });
 
   return (
     <>
@@ -27,13 +38,27 @@ export default function UsuariosPage() {
             Administra los usuarios que pueden acceder al sistema
           </p>
         </div>
-        <Button>
+        <Button onClick={openCreate}>
           <PlusIcon /> Agregar Usuario
         </Button>
       </div>
 
-        <UsersTable users={usersList} />
-      
+      <UsersTable
+        users={usersList}
+        onEditUser={openEdit}
+        onToggleUserState={toggleUserState}
+      />
+
+      <UserFormModal
+        open={open}
+        mode={mode}
+        loading={loading}
+        values={values}
+        errors={errors}
+        onOpenChange={onOpenChange}
+        setField={setField}
+        onSubmit={submit}
+      />
     </>
   );
 }

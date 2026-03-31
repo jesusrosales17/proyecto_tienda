@@ -1,9 +1,11 @@
-import { LayoutDashboard, ShoppingBag, ShoppingCart, Users, Package } from "lucide-react";
-import { NavLink } from "react-router";
+import { LayoutDashboard, LogOut, Package, ShoppingBag, ShoppingCart, Users } from "lucide-react";
+import { NavLink, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -36,7 +38,28 @@ const sidebarByRole: Record<UserRole, SidebarItem[]> = {
 };
 
 export const AppSidebar = ({ role }: AppSidebarProps) => {
+  const navigate = useNavigate();
   const items = sidebarByRole[role];
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        toast.error("No se pudo cerrar sesión");
+        return;
+      }
+
+      toast.success("Sesión cerrada");
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error(error);
+      toast.error("Ocurrió un error inesperado");
+    }
+  };
 
   return (
     <Sidebar>
@@ -58,6 +81,21 @@ export const AppSidebar = ({ role }: AppSidebarProps) => {
           ))}
         </SidebarMenu>
       </SidebarContent>
+
+      <SidebarFooter className="border-t p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Cerrar sesión"
+              className="text-red-600 hover:bg-red-500/10 hover:text-red-700"
+              onClick={handleLogout}
+            >
+              <LogOut className="size-4" />
+              <span>Cerrar sesión</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 };

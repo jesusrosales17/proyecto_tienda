@@ -14,7 +14,10 @@ import {
 import { Button } from "~/components/ui/button";
 import { Edit, MoreHorizontal, ToggleLeft, ToggleRight } from "lucide-react";
 
-export const columns: ColumnDef<UserBase>[] = [
+export const getColumns = (
+  onEditUser: (user: UserBase) => void,
+  onToggleUserState: (user: UserBase) => void,
+): ColumnDef<UserBase>[] => [
   {
     accessorKey: "nombre",
     header: "Nombre",
@@ -66,7 +69,10 @@ export const columns: ColumnDef<UserBase>[] = [
           >
             <DropdownMenuLabel className="text-primary">Acciones</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className=" rounded-lg transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary data-highlighted:bg-primary/10 data-highlighted:text-primary">
+            <DropdownMenuItem
+              className="rounded-lg transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary data-highlighted:bg-primary/10 data-highlighted:text-primary"
+              onClick={() => onEditUser(user)}
+            >
               <Edit />
               Editar
             </DropdownMenuItem>
@@ -76,6 +82,7 @@ export const columns: ColumnDef<UserBase>[] = [
                   ? "text-red-600 hover:bg-red-500/10 hover:text-red-700 focus:bg-red-500/10 focus:text-red-700 data-highlighted:bg-red-500/10 data-highlighted:text-red-700"
                   : "text-emerald-700 hover:bg-emerald-500/10 hover:text-emerald-800 focus:bg-emerald-500/10 focus:text-emerald-800 data-highlighted:bg-emerald-500/10 data-highlighted:text-emerald-800"
               }`}
+              onClick={() => onToggleUserState(user)}
             >
               {isActive ? (
                 <ToggleLeft className="h-4 w-4" />

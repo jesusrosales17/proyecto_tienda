@@ -19,7 +19,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
 
     const [rows] = await pool.query<UserAuthRow[]>(
-      "SELECT id, correo_electronico AS email, nombre, contrasena AS password, rol FROM usuarios WHERE correo_electronico = ? LIMIT 1",
+      "SELECT id, correo_electronico AS email, nombre, contrasena AS password, rol FROM usuarios WHERE correo_electronico = ? AND estado = 1 LIMIT 1",
       [email]
     );
 
@@ -79,5 +79,13 @@ export const me = (req: AuthRequest, res: Response) => {
   return res.status(200).json({
     message: "Usuario autenticado",
     user: req.user,
+  });
+};
+
+export const logout = (req: Request, res: Response) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "lax", secure: true });
+
+  return res.status(200).json({
+    message: "Sesión cerrada exitosamente",
   });
 };

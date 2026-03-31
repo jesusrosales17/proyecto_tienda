@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { UserState, type UserAuthRow, type UserWithEstadoRow } from '../types/user.types.js';
 import type { ResultSetHeader } from 'mysql2';
+import bcrypt from 'bcryptjs';
 
 import pool from '../config/database.js';
 
@@ -58,9 +59,9 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
       });
     }
 
-    if(!email.trim() || !nombre.trim() || !password.trim() || !rol.trim()) {
+    if(!email.trim() || !nombre.trim() || !rol.trim()) {
       return res.status(400).json({
-        error: "Todos los campos son obligatorios"
+        error: "email, nombre y rol son obligatorios"
       });
     }
 
@@ -79,8 +80,21 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
         error: "El correo electrónico ya está en uso",
       });
     }
+    console.log(!!password && password.trim())
 
-    const [result] = await pool.query<ResultSetHeader>("UPDATE usuarios SET correo_electronico = ?, nombre = ?, contrasena = ?, rol = ? WHERE id = ?", [email.trim(), nombre.trim(), password.trim(), rol.trim(), id]);
+    if (password && password.trim()) {
+      const encryptedPassword = await bcrypt.hash(password.trim(), 10);
+
+      await pool.query<ResultSetHeader>(
+        "UPDATE usuarios SET correo_electronico = ?, nombre = ?, contrasena = ?, rol = ? WHERE id = ?",
+        [email.trim(), nombre.trim(), encryptedPassword, rol.trim(), id]
+      );
+    } else {
+      await pool.query<ResultSetHeader>(
+        "UPDATE usuarios SET correo_electronico = ?, nombre = ?, rol = ? WHERE id = ?",
+        [email.trim(), nombre.trim(), rol.trim(), id]
+      );
+    }
 
     return res.status(200).json({
       message: "Usuario actualizado exitosamente",

@@ -8,14 +8,34 @@ import config from './config/config.js';
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import ventasRoutes from "./routes/ventasRoutes.js";
 
 const app = express();
 
 // cors
-app.use(cors({
-	origin: config.frontendUrl,
-	credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Permite herramientas sin origin (Postman/curl)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // En desarrollo permite localhost con cualquier puerto (5173, 5174, etc.)
+      if (config.nodeEnv !== "production" && /^http:\/\/localhost:\d+$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // En producción o cuando se define FRONTEND_URL, valida origen exacto
+      if (origin === config.frontendUrl) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origen no permitido por CORS"));
+    },
+    credentials: true,
+  })
+);
 
 
 // convertir a json
@@ -26,6 +46,7 @@ app.use(cookieParcer());
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use("/api/ventas", ventasRoutes);
 
 
 // middleware para los errores

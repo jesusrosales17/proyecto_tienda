@@ -50,7 +50,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     const token = jwt.sign(payload, config.jwtSecret, { expiresIn });
 
-    res.cookie("token", token, { httpOnly: true, sameSite: "lax", secure: true});
+    // En desarrollo (http://localhost) el flag secure=true impide que el navegador guarde la cookie.
+    const isProduction = config.nodeEnv === "production";
+    res.cookie("token", token, { httpOnly: true, sameSite: "lax", secure: isProduction });
     
 
     const response: LoginSuccessResponse = {
@@ -83,7 +85,8 @@ export const me = (req: AuthRequest, res: Response) => {
 };
 
 export const logout = (req: Request, res: Response) => {
-  res.clearCookie("token", { httpOnly: true, sameSite: "lax", secure: true });
+  const isProduction = config.nodeEnv === "production";
+  res.clearCookie("token", { httpOnly: true, sameSite: "lax", secure: isProduction });
 
   return res.status(200).json({
     message: "Sesión cerrada exitosamente",

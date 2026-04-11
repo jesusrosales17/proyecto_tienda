@@ -112,8 +112,8 @@ export const ProtectedAppLayout = () => {
     <SidebarProvider>
       <AppSidebar role={user.rol} />
 
-      <SidebarInset>
-        <header className="flex h-16 items-center gap-2 border-b px-4">
+      <SidebarInset className="min-w-0 md:pl-0">
+        <header className="flex h-16 items-center gap-2 border-b pl-2 pr-3 sm:pl-3 sm:pr-4">
           <SidebarTrigger />
           <div>
             <h1 className="text-lg font-semibold">Dashboard</h1>
@@ -123,7 +123,7 @@ export const ProtectedAppLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 w-full min-w-0 py-5 pl-1 pr-3 sm:py-6 sm:pl-2 sm:pr-4 lg:pr-6">
           <Outlet />
         </main>
       </SidebarInset>

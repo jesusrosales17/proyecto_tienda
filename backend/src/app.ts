@@ -9,6 +9,7 @@ import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import ventasRoutes from "./routes/ventasRoutes.js";
+import productRoutes from './routes/productRoutes.js';
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use("/api/ventas", ventasRoutes);
+app.use('/api/products', productRoutes);
 
 
 // middleware para los errores

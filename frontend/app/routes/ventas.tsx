@@ -34,16 +34,23 @@ type CartLine = {
   incluido: boolean;
 };
 
+type VentaProducto = {
+  nombre: string;
+  cantidad: number;
+  precio: number;
+};
+
 type VentaRegistro = {
   id: number;
   cliente: string;
   total: number;
   fecha: string;
   vendedor: string;
+  productos: VentaProducto[];
 };
 
 const money = (n: number) =>
-  new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(n);
+  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 
 const newLineKey = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -279,7 +286,7 @@ export default function VentasPage() {
     "h-10 rounded-lg border border-input bg-white px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 outline-none";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
+    <div className="flex flex-col gap-6">
       <section
         className={cn(
           "overflow-hidden rounded-xl border border-border bg-white text-foreground shadow-sm"
@@ -458,7 +465,7 @@ export default function VentasPage() {
 
       <Card className="border-border/80 shadow-md">
         <CardHeader>
-          <CardTitle className="text-base">Últimas ventas</CardTitle>
+          <CardTitle className="text-base uppercase tracking-wider text-muted-foreground">Historial</CardTitle>
         </CardHeader>
         <CardContent>
           {loadingData ? (
@@ -466,24 +473,47 @@ export default function VentasPage() {
           ) : ventas.length === 0 ? (
             <p className="text-sm text-muted-foreground">Aún no hay ventas registradas.</p>
           ) : (
-            <ul className="max-h-[min(70vh,520px)] space-y-3 overflow-y-auto pr-1">
-              {ventas.map((venta) => (
-                <li
-                  className="rounded-lg border border-border/60 bg-card/50 p-3 text-sm"
-                  key={venta.id}
-                >
-                  <p className="font-medium">
-                    Venta #{venta.id} — {venta.cliente}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {venta.vendedor} · {new Date(venta.fecha).toLocaleString()}
-                  </p>
-                  <p className="mt-1 font-semibold tabular-nums">
-                    {money(Number(venta.total))}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-border bg-muted/30 text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 w-20">ID</th>
+                    <th className="px-4 py-3">Cliente</th>
+                    <th className="px-4 py-3">Productos</th>
+                    <th className="px-4 py-3">Vendedor</th>
+                    <th className="px-4 py-3">Fecha</th>
+                    <th className="px-4 py-3 text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {ventas.map((venta) => (
+                    <tr key={venta.id} className="hover:bg-muted/10 transition-colors">
+                      <td className="px-4 py-3 font-medium tabular-nums align-top">#{venta.id}</td>
+                      <td className="px-4 py-3 align-top">{venta.cliente}</td>
+                      <td className="px-4 py-3 align-top">
+                        <ul className="space-y-1">
+                          {venta.productos?.map((p, idx) => (
+                            <li key={idx} className="text-xs">
+                              <span className="font-medium">{p.nombre}</span>
+                              <span className="text-muted-foreground ml-1">
+                                (x{p.cantidad} · {money(Number(p.precio))})
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground align-top">{venta.vendedor}</td>
+                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap align-top text-xs">
+                        {new Date(venta.fecha).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold tabular-nums align-top">
+                        {money(Number(venta.total))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>

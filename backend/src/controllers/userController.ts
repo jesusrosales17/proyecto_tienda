@@ -65,7 +65,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
       });
     }
 
-    const [existingUser] = await pool.query<UserAuthRow[]>("SELECT id FROM usuarios WHERE id = ?", [id]);
+    const [existingUser] = await pool.query<UserAuthRow[]>("SELECT id, estado FROM usuarios WHERE id = ?", [id]);
 
     if (existingUser.length === 0) {
       return res.status(404).json({
@@ -96,13 +96,16 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
       );
     }
 
+
     return res.status(200).json({
       message: "Usuario actualizado exitosamente",
       user: {
-        id,
+        id: Number(id),
+        estado: existingUser?.[0]?.estado,
         email: email.trim(),
         nombre: nombre.trim(),
-        rol: rol.trim()
+        rol: rol.trim(),
+        
       }
     });
   } catch (error) {

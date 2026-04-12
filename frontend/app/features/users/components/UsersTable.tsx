@@ -35,6 +35,7 @@ export const UsersTable = ({ users, onEditUser, onToggleUserState }: Props) => {
   );
 
   const filteredUsers = useMemo(() => {
+    console.log({users})
     const query = search.trim().toLowerCase();
 
     return users.filter((user) => {

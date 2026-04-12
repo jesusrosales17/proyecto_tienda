@@ -15,8 +15,10 @@ import {
 import { ProductState, type ProductBase } from "../types/product.types";
 
 const money = (n: number) =>
-  new Intl.NumberFormat("es-CO", {
-    minimumFractionDigits: 0,
+  new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(n);
 

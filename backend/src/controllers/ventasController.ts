@@ -57,9 +57,19 @@ export const getVentas = async (_req: AuthRequest, res: Response, next: NextFunc
         v.cliente,
         v.total,
         v.fecha,
-        u.nombre AS vendedor
+        u.nombre AS vendedor,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'nombre', p.nombre_producto,
+            'cantidad', dv.cantidad_vendida,
+            'precio', dv.precio_unitario
+          )
+        ) AS productos
       FROM ventas v
       INNER JOIN usuarios u ON u.id = v.usuario_id
+      INNER JOIN detalle_ventas dv ON dv.venta_id = v.id
+      INNER JOIN productos p ON p.id = dv.producto_id
+      GROUP BY v.id, u.nombre
       ORDER BY v.fecha DESC
       LIMIT 30`
     );

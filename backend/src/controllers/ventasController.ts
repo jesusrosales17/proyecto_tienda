@@ -49,8 +49,18 @@ export const getClientesHistoricos = async (
   }
 };
 
-export const getVentas = async (_req: AuthRequest, res: Response, next: NextFunction) => {
+export const getVentas = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    const role = req.user?.rol;
+    const userId = req.user?.id;
+
+    if (!role || !userId) {
+      return res.status(401).json({ message: "No autenticado" });
+    }
+
+    const whereClause = role === "Administrador" ? "" : "WHERE v.usuario_id = ?";
+    const queryParams = role === "Administrador" ? [] : [userId];
+
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT
         v.id,
@@ -69,9 +79,10 @@ export const getVentas = async (_req: AuthRequest, res: Response, next: NextFunc
       INNER JOIN usuarios u ON u.id = v.usuario_id
       INNER JOIN detalle_ventas dv ON dv.venta_id = v.id
       INNER JOIN productos p ON p.id = dv.producto_id
+      ${whereClause}
       GROUP BY v.id, u.nombre
-      ORDER BY v.fecha DESC
-      LIMIT 30`
+      ORDER BY v.fecha DESC`,
+      queryParams,
     );
 
     return res.status(200).json(rows);

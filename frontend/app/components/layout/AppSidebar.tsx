@@ -34,6 +34,7 @@ const sidebarByRole: Record<UserRole, SidebarItem[]> = {
   [UserRole.Vendedor]: [
     { label: "Inicio", to: "/", icon: LayoutDashboard },
     { label: "Ventas", to: "/ventas", icon: ShoppingBag },
+    { label: "Productos", to: "/productos", icon: Package },
   ],
 };
 

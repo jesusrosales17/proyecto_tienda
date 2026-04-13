@@ -25,8 +25,10 @@ const money = (n: number) =>
 export const getColumns = (
   onEditProduct: (product: ProductBase) => void,
   onDeleteProduct: (product: ProductBase) => void,
-): ColumnDef<ProductBase>[] => [
-  {
+  canManageProducts = true,
+): ColumnDef<ProductBase>[] => {
+  const baseColumns: ColumnDef<ProductBase>[] = [
+    {
     accessorKey: "nombre",
     header: "Producto",
     cell: ({ row }) => {
@@ -35,7 +37,7 @@ export const getColumns = (
         <div>
           <div className="font-medium">{row.original.nombre}</div>
           {desc ? (
-            <div className="text-xs text-muted-foreground line-clamp-2 max-w-[240px]">
+            <div className="text-xs text-muted-foreground line-clamp-2 max-w-60">
               {desc}
             </div>
           ) : null}
@@ -43,21 +45,21 @@ export const getColumns = (
       );
     },
   },
-  {
+    {
     accessorKey: "precio_compra",
     header: "Precio compra",
     cell: ({ row }) => money(row.original.precio_compra),
-  },
-  {
+    },
+    {
     accessorKey: "precio_venta",
     header: "Precio venta",
     cell: ({ row }) => money(row.original.precio_venta),
-  },
-  {
+    },
+    {
     accessorKey: "cantidad_inventario",
     header: "Inventario",
-  },
-  {
+    },
+    {
     accessorKey: "estado",
     header: "Estado",
     cell: ({ row }) => {
@@ -70,8 +72,16 @@ export const getColumns = (
         </Badge>
       );
     },
-  },
-  {
+    },
+  ];
+
+  if (!canManageProducts) {
+    return baseColumns;
+  }
+
+  return [
+    ...baseColumns,
+    {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -112,5 +122,6 @@ export const getColumns = (
         </DropdownMenu>
       );
     },
-  },
-];
+    },
+  ];
+};

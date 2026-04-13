@@ -25,18 +25,20 @@ interface Props {
   products: ProductBase[];
   onEditProduct: (product: ProductBase) => void;
   onDeleteProduct: (product: ProductBase) => void;
+  canManageProducts?: boolean;
 }
 
 export const ProductsTable = ({
   products,
   onEditProduct,
   onDeleteProduct,
+  canManageProducts = true,
 }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProductsStatusFilter>("all");
   const columns = useMemo(
-    () => getColumns(onEditProduct, onDeleteProduct),
-    [onEditProduct, onDeleteProduct],
+    () => getColumns(onEditProduct, onDeleteProduct, canManageProducts),
+    [canManageProducts, onEditProduct, onDeleteProduct],
   );
 
   const filteredProducts = useMemo(() => {

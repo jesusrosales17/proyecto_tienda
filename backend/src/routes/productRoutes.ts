@@ -11,7 +11,7 @@ import { auth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", auth, authorize("Administrador"), getProducts);
+router.get("/", auth, authorize("Administrador", "Vendedor"), getProducts);
 router.post("/", auth, authorize("Administrador"), createProduct);
 router.post("/quick-create", auth, authorize("Administrador"), quickCreateProduct);
 router.put("/:id", auth, authorize("Administrador"), updateProduct);

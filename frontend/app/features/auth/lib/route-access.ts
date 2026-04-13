@@ -2,7 +2,7 @@ import { UserRole } from "~/features/auth/lib/roles";
 
 const roleRoutePrefixes: Record<UserRole, string[]> = {
   [UserRole.Administrador]: ["/", "/ventas", "/compras", "/usuarios", "/productos"],
-  [UserRole.Vendedor]: ["/", "/ventas"],
+  [UserRole.Vendedor]: ["/", "/ventas", "/productos"],
 };
 
 export const isRouteAllowedForRole = (pathname: string, role: UserRole): boolean => {

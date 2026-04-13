@@ -124,7 +124,7 @@ export const ProtectedAppLayout = () => {
         </header>
 
         <main className="flex-1 w-full min-w-0 py-5 pl-1 pr-3 sm:py-6 sm:pl-2 sm:pr-4 lg:pr-6">
-          <Outlet />
+          <Outlet context={{ userRole: user.rol }} />
         </main>
       </SidebarInset>
     </SidebarProvider>

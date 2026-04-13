@@ -1,40 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { AdminDashboardSummary } from "~/features/dashboard/components/AdminDashboardSummary";
+import { DashboardSummarySkeleton } from "~/features/dashboard/components/DashboardSummarySkeleton";
+import { SellerDashboardSummary } from "~/features/dashboard/components/SellerDashboardSummary";
+import { useDashboardSummary } from "~/features/dashboard/hooks/useDashboardSummary";
+import { moneyFormatter } from "~/features/dashboard/lib/formatters";
+import { UserRole } from "~/features/auth/lib/roles";
 
 export default function DashboardPage() {
-  return (
-    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <CardTitle>Resumen rápido</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Aquí podrás mostrar métricas clave del negocio.
-          </p>
-        </CardContent>
-      </Card>
+  const { loading, role, metrics } = useDashboardSummary();
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Actividad reciente</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Últimos movimientos de compras y ventas.
-          </p>
-        </CardContent>
-      </Card>
+  if (loading) {
+    return <DashboardSummarySkeleton cards={role === UserRole.Administrador ? 4 : 3} />;
+  }
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recordatorios</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Usa este espacio para pendientes importantes.
-          </p>
-        </CardContent>
-      </Card>
-    </section>
-  );
+  if (role === UserRole.Administrador) {
+    return <AdminDashboardSummary metrics={metrics} moneyFormatter={moneyFormatter} />;
+  }
+
+  return <SellerDashboardSummary metrics={metrics} moneyFormatter={moneyFormatter} />;
 }

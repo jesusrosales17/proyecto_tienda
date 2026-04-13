@@ -9,6 +9,7 @@ import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import ventasRoutes from "./routes/ventasRoutes.js";
+import comprasRoutes from "./routes/comprasRoutes.js";
 import productRoutes from './routes/productRoutes.js';
 
 const app = express();
@@ -22,8 +23,11 @@ app.use(
         return callback(null, true);
       }
 
-      // En desarrollo permite localhost con cualquier puerto (5173, 5174, etc.)
-      if (config.nodeEnv !== "production" && /^http:\/\/localhost:\d+$/.test(origin)) {
+      // En desarrollo permite localhost y 127.0.0.1 con cualquier puerto (Vite, etc.)
+      if (
+        config.nodeEnv !== "production" &&
+        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+      ) {
         return callback(null, true);
       }
 
@@ -48,6 +52,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use("/api/ventas", ventasRoutes);
+app.use("/api/compras", comprasRoutes);
 app.use('/api/products', productRoutes);
 
 

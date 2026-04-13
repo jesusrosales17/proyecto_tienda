@@ -24,15 +24,20 @@ export const getDashboardSummary = async (
       return res.status(401).json({ message: "No autenticado" });
     }
 
-    const [totalVentasRows] =
-      role === "Administrador"
-        ? await connection.query<CountRow[]>("SELECT COUNT(*) AS total FROM ventas")
-        : await connection.query<CountRow[]>("SELECT COUNT(*) AS total FROM ventas WHERE usuario_id = ?", [userId]);
+    const salesBaseCondition = "fecha >= CURDATE() AND fecha < DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+    const salesCondition =
+      role === "Administrador" ? salesBaseCondition : `${salesBaseCondition} AND usuario_id = ?`;
+    const salesParams = role === "Administrador" ? [] : [userId];
 
-    const [totalVendidoRows] =
-      role === "Administrador"
-        ? await connection.query<SumRow[]>("SELECT COALESCE(SUM(total), 0) AS total FROM ventas")
-        : await connection.query<SumRow[]>("SELECT COALESCE(SUM(total), 0) AS total FROM ventas WHERE usuario_id = ?", [userId]);
+    const [totalVentasRows] = await connection.query<CountRow[]>(
+      `SELECT COUNT(*) AS total FROM ventas WHERE ${salesCondition}`,
+      salesParams,
+    );
+
+    const [totalVendidoRows] = await connection.query<SumRow[]>(
+      `SELECT COALESCE(SUM(total), 0) AS total FROM ventas WHERE ${salesCondition}`,
+      salesParams,
+    );
 
     const [totalProductosRows] = await connection.query<CountRow[]>(
       "SELECT COUNT(*) AS total FROM productos",

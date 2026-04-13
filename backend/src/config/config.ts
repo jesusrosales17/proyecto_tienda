@@ -11,6 +11,7 @@ interface Config {
   dbUser: string;
   dbPassword: string;
   dbName: string;
+  dbConnectionLimit: number;
   jwtSecret: string;
   jwtExpiresIn: string;
 }
@@ -24,6 +25,7 @@ const config: Config = {
   dbUser: process.env.DB_USER || 'root',
   dbPassword: process.env.DB_PASSWORD || '',
   dbName: process.env.DB_NAME || 'app_db',
+  dbConnectionLimit: Number(process.env.DB_CONNECTION_LIMIT) || 4,
   jwtSecret: process.env.JWT_SECRET || 'change-this-secret',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
 }

@@ -8,7 +8,8 @@ const pool = mysql.createPool({
   password: config.dbPassword,
   database: config.dbName,
   waitForConnections: true,
-  connectionLimit: 10,
+  // Keep the pool below typical shared-host limits (e.g. max_user_connections = 5).
+  connectionLimit: Math.max(1, Math.min(config.dbConnectionLimit, 4)),
   queueLimit: 0,
 });
 

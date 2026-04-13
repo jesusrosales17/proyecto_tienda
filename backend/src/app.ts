@@ -3,7 +3,6 @@ import cors from 'cors';
 import cookieParcer from 'cookie-parser';
 
 import { errorHandler } from './middlewares/errorHandler.js';
-import config from './config/config.js';
 
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -15,30 +14,9 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 
 const app = express();
 
-// cors
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Permite herramientas sin origin (Postman/curl)
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      // En desarrollo permite localhost y 127.0.0.1 con cualquier puerto (Vite, etc.)
-      if (
-        config.nodeEnv !== "production" &&
-        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
-      ) {
-        return callback(null, true);
-      }
-
-      // En producción o cuando se define FRONTEND_URL, valida origen exacto
-      if (origin === config.frontendUrl) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Origen no permitido por CORS"));
-    },
+    origin: true,
     credentials: true,
   })
 );

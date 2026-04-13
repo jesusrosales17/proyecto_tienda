@@ -178,6 +178,49 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const quickCreateProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { nombre, precio_compra } = req.body;
+
+    if (!nombre || typeof nombre !== "string" || !nombre.trim()) {
+      return res.status(400).json({ error: "El nombre del producto es obligatorio" });
+    }
+
+    if (nombre.trim().length > MAX_NOMBRE_PRODUCTO) {
+      return res.status(400).json({
+        error: `El nombre no puede superar ${MAX_NOMBRE_PRODUCTO} caracteres.`,
+      });
+    }
+
+    const pc = toNumber(precio_compra);
+
+    if (!Number.isFinite(pc) || pc < 0) {
+      return res.status(400).json({ error: "Precio de compra inválido" });
+    }
+
+    const [result] = await pool.query<ResultSetHeader>(
+      `INSERT INTO productos (nombre_producto, descripcion, precio_compra, precio_venta, cantidad_inventario, estado)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [nombre.trim(), null, pc, 0, 0, ProductState.Active],
+    );
+
+    return res.status(201).json({
+      message: "Producto creado exitosamente",
+      product: {
+        id: result.insertId,
+        nombre: nombre.trim(),
+        descripcion: "",
+        precio_compra: pc,
+        precio_venta: 0,
+        cantidad_inventario: 0,
+        estado: ProductState.Active,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;

@@ -83,6 +83,10 @@ export default function ComprasPage() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [modalProductosAbierto, setModalProductosAbierto] = useState(false);
+  const [modalNuevoProductoAbierto, setModalNuevoProductoAbierto] = useState(false);
+  const [nuevoProductoNombre, setNuevoProductoNombre] = useState("");
+  const [nuevoProductoPrecio, setNuevoProductoPrecio] = useState("");
+  const [creandoProducto, setCreandoProducto] = useState(false);
   const [candidatosProductos, setCandidatosProductos] = useState<Producto[]>([]);
   const [textoBusquedaProducto, setTextoBusquedaProducto] = useState("");
   const [busquedaProductoFocada, setBusquedaProductoFocada] = useState(false);
@@ -272,6 +276,60 @@ export default function ComprasPage() {
   const removeLine = (key: string) => {
     setCart((current) => current.filter((l) => l.key !== key));
     setLineaSeleccionadaKey((k) => (k === key ? null : k));
+  };
+
+  const handleQuickCreateProduct = async () => {
+    if (!nuevoProductoNombre.trim()) {
+      toast.error("El nombre del producto es obligatorio");
+      return;
+    }
+    const pc = Number(nuevoProductoPrecio);
+    if (isNaN(pc) || pc < 0) {
+      toast.error("El precio de compra debe ser un número válido");
+      return;
+    }
+
+    setCreandoProducto(true);
+    try {
+      const response = await fetch(`${base}/products/quick-create`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nuevoProductoNombre.trim(),
+          precio_compra: pc,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "No se pudo crear el producto");
+        return;
+      }
+
+      const newProduct: Producto = {
+        id: data.product.id,
+        nombre: data.product.nombre,
+        precioCompra: Number(data.product.precio_compra),
+        stock: 0,
+      };
+
+      // 1. Actualizar lista de productos para el buscador
+      setProductos((prev) => [...prev, newProduct]);
+
+      // 2. Agregar al carrito
+      agregarProductoAlCarrito(newProduct);
+
+      toast.success("Producto creado y agregado");
+      setModalNuevoProductoAbierto(false);
+      setNuevoProductoNombre("");
+      setNuevoProductoPrecio("");
+    } catch (error) {
+      toast.error("Error al crear el producto");
+    } finally {
+      setCreandoProducto(false);
+    }
   };
 
   const resetForm = () => {
@@ -515,6 +573,15 @@ export default function ComprasPage() {
                 disabled={loadingData}
               >
                 Buscar
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0"
+                onClick={() => setModalNuevoProductoAbierto(true)}
+                disabled={loadingData}
+              >
+                + Nuevo
               </Button>
             </div>
           </div>
@@ -794,6 +861,57 @@ export default function ComprasPage() {
           <DialogFooter className="border-t border-border px-6 py-4">
             <Button type="button" variant="outline" onClick={() => cerrarModalProductos(false)}>
               Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={modalNuevoProductoAbierto} onOpenChange={setModalNuevoProductoAbierto}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Agregar nuevo producto</DialogTitle>
+            <DialogDescription>
+              Crea un producto rápidamente para agregarlo a la compra.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="nuevo-nombre">Nombre del producto</Label>
+              <Input
+                id="nuevo-nombre"
+                value={nuevoProductoNombre}
+                onChange={(e) => setNuevoProductoNombre(e.target.value)}
+                placeholder="Ej. Coca Cola 600ml"
+                autoComplete="off"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nuevo-precio">Precio de compra</Label>
+              <Input
+                id="nuevo-precio"
+                type="number"
+                step="0.01"
+                value={nuevoProductoPrecio}
+                onChange={(e) => setNuevoProductoPrecio(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setModalNuevoProductoAbierto(false)}
+              disabled={creandoProducto}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={handleQuickCreateProduct}
+              disabled={creandoProducto}
+            >
+              {creandoProducto ? "Guardando..." : "Crear y agregar"}
             </Button>
           </DialogFooter>
         </DialogContent>

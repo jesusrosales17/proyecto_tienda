@@ -229,7 +229,43 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       return res.status(400).json({ error: "ID del producto es requerido" });
     }
 
-    const [result] = await pool.query<ResultSetHeader>("DELETE FROM productos WHERE id = ?", [id]);
+    const productId = Number(id);
+    if (!Number.isInteger(productId) || productId <= 0) {
+      return res.status(400).json({ error: "ID del producto inválido" });
+    }
+
+    const [productRows] = await pool.query<Array<{ id: number }>>(
+      "SELECT id FROM productos WHERE id = ? LIMIT 1",
+      [productId],
+    );
+
+    if (productRows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    const [usedInCompras] = await pool.query<Array<{ used: number }>>(
+      "SELECT 1 AS used FROM detalle_compras WHERE producto_id = ? LIMIT 1",
+      [productId],
+    );
+
+    if (usedInCompras.length > 0) {
+      return res.status(409).json({
+        error: "No se puede eliminar el producto porque está siendo usado en compras",
+      });
+    }
+
+    const [usedInVentas] = await pool.query<Array<{ used: number }>>(
+      "SELECT 1 AS used FROM detalle_ventas WHERE producto_id = ? LIMIT 1",
+      [productId],
+    );
+
+    if (usedInVentas.length > 0) {
+      return res.status(409).json({
+        error: "No se puede eliminar el producto porque está siendo usado en ventas",
+      });
+    }
+
+    const [result] = await pool.query<ResultSetHeader>("DELETE FROM productos WHERE id = ?", [productId]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Producto no encontrado" });

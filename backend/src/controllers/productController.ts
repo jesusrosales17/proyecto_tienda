@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import type { ResultSetHeader } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 import pool from "../config/database.js";
 import { ProductState, type ProductRow } from "../types/product.types.js";
@@ -21,6 +21,9 @@ const mapProduct = (row: ProductRow) => ({
   cantidad_inventario: Number(row.cantidad_inventario),
   estado: row.estado,
 });
+
+type ProductExistsRow = RowDataPacket & { id: number };
+type ProductUsageRow = RowDataPacket & { used: number };
 
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -234,7 +237,7 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       return res.status(400).json({ error: "ID del producto inválido" });
     }
 
-    const [productRows] = await pool.query<Array<{ id: number }>>(
+    const [productRows] = await pool.query<ProductExistsRow[]>(
       "SELECT id FROM productos WHERE id = ? LIMIT 1",
       [productId],
     );
@@ -243,7 +246,7 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
-    const [usedInCompras] = await pool.query<Array<{ used: number }>>(
+    const [usedInCompras] = await pool.query<ProductUsageRow[]>(
       "SELECT 1 AS used FROM detalle_compras WHERE producto_id = ? LIMIT 1",
       [productId],
     );
@@ -254,7 +257,7 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       });
     }
 
-    const [usedInVentas] = await pool.query<Array<{ used: number }>>(
+    const [usedInVentas] = await pool.query<ProductUsageRow[]>(
       "SELECT 1 AS used FROM detalle_ventas WHERE producto_id = ? LIMIT 1",
       [productId],
     );
